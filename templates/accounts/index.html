@@ -1,0 +1,39 @@
+{%extends "base.html"%}
+{% block title %}
+Poly Clinic Management System
+{% endblock title %}
+
+{%block body%}
+<h1> Doctors</h1>
+
+      <div class="container">
+      <div class="row">
+        {% for doctor in alldoctor%}
+      <div class="col-md-4">
+    <div class="card">
+      <img src="{{doctor.image.url}}" width=120 height=100 class="img-fluid rounded-start" alt="{{doctor.message|safe}}">
+      <div class="card-body">
+        <h5 class="card-title">{{doctor.name|safe}}</h5>
+        <p class="card-text">{{doctor.specific|safe|truncatechars:150}}</p>
+        <p class="card-text"><small class="text-body-secondary">Last updated {{doctor.time|safe}}</small></p>
+      </div>
+    </div>
+  </div>
+        {% endfor %}
+  </div>
+
+</div>
+<hr>
+<h4> Watch Our Doctors Suggestions in videos : </h4>
+
+<div class="container">
+
+{% for video in video %}
+    <h5>{{video.title}}</h5>
+<video width="200" height="200" controls >
+<source src="{{video.video.url}}" type="video/mp4">
+
+</video>
+ {% endfor %}
+</div>
+{% endblock body %}

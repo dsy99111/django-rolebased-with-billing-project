@@ -1,0 +1,45 @@
+<!-- doctor.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, Doctor!</h1>
+
+    <!-- Display filtered appointments -->
+    <h2>Your Appointments:</h2>
+    {% if appointments %}
+        <ul>
+            {% for appointment in appointments %}
+                <li><b>Patient: {{ appointment.patient.username }}<br></b>
+                    Date: {{ appointment.appointment_date }}<br>
+                    Time: {{ appointment.appointment_time }}<br>
+
+                    Reason: {{ appointment.reason }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No appointments found.</p>
+    {% endif %}
+<!-- Display test reports -->
+    <h2>Test Reports:</h2>
+    {% if test_reports %}
+        <ul>
+            {% for report in test_reports %}
+                <li>
+                    Patient: {{ report.patient.username }}<br>
+                    Uploaded At: {{ report.uploaded_at }}<br>
+                    Report File: <a href="{{ report.report_file.url }}">{{ report.report_file.name }}</a><br>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No test reports found.</p>
+    {% endif %}
+    <!-- Add additional doctor dashboard content as needed -->
+</body>
+</html>

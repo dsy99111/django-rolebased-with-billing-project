@@ -1,0 +1,7 @@
+<h1>Delete Test Report</h1>
+    <p>Are you sure you want to delete the test report "{{ report.report_file.name }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Delete</button>
+        <a href="{% url 'view_reports' %}">Cancel</a>
+    </form>

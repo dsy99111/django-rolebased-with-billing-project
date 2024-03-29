@@ -1,0 +1,74 @@
+{%extends "base.html"%}
+<!-- dashboard/patient.html -->
+{% block body%}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, Patient!</h1>
+
+    <!-- Display existing appointments -->
+    {% if appointments %}
+        <h2>Your Appointments:</h2>
+        <ul>
+            {% for appointment in appointments %}
+                <li>{{ appointment.appointment_date }} - {{ appointment.doctor.username }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No appointments found.</p>
+    {% endif %}
+
+    <!-- Add button for appointment creation -->
+    <a href="{% url 'create_appointment' %}" class="btn btn-primary">Create Appointment</a>
+<!-- Display uploaded test reports -->
+     <h2>Your Test Reports</h2>
+    <ul>
+        <!-- Upload Test Report Button -->
+    <a href="{% url 'upload_test_report' %}"><button>Upload Test Report</button></a>
+
+    <!-- Display uploaded test reports -->
+    <h2>Your Test Reports:</h2>
+    <ul>
+        {% for test_report in test_reports %}
+            <li>{{ test_report.report_file.name }} - Uploaded at: {{ test_report.uploaded_at }}</li>
+            <!-- Edit Test Report Link -->
+            <li><a href="{% url 'edit_test_report' test_report.id %}">Edit</a></li>
+        {% empty %}
+            <li>No test reports uploaded.</li>
+        {% endfor %}
+    </ul>
+
+
+<hr>
+      <div class="container">
+  <div class="row">
+    {% for report in test_reports %}
+      <div class="col-md-4">
+        <div class="card">
+          {% if report.report_file %}
+            <img src="{{ report.report_file.url }}" width=120 height=100 class="card-img-top" alt="Report Image">
+          {% else %}
+            <div class="text-center">
+              <p>No image available</p>
+            </div>
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ report.patient }}</h5>
+            <p class="card-text"><small class="text-muted">Last updated {{ report.uploaded_at }}</small></p>
+            <!-- Add additional card content or actions here -->
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+<hr>
+</ul>
+</body>
+</html>
+{% endblock body%}

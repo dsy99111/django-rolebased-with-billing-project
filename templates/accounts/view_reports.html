@@ -1,0 +1,18 @@
+ <!-- Upload form content -->
+<h1>Your Test Reports</h1>
+    <ul>
+        {% for report in reports %}
+        <li>
+            <a href="{{ report.report_file.url }}">{{ report.report_file.name }}</a>
+            <form method="post" action="{% url 'delete_report' report.id %}">
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {% empty %}
+        <li>No test reports uploaded.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'upload_test_report' %}">Upload New Report</a>
+{% endblock %}
+

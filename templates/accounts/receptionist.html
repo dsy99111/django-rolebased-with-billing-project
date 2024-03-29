@@ -1,0 +1,44 @@
+<!-- dashboard/receptionist.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, Receptionist!</h1>
+
+    <!-- Appointment Filtering Form -->
+    <form method="GET" action="">
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date">
+
+        <label for="doctor">Select Doctor:</label>
+       <select id="doctor" name="doctor">
+    <option value="">All Doctors</option>
+    {% for doctor in doctors %}
+        <option value="{{ doctor.username }}">{{ doctor.username }}</option>
+    {% endfor %}
+</select>
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <!-- Display filtered appointments -->
+    <h2>Filtered Appointments:</h2>
+    {% if appointments %}
+        <ul>
+            {% for appointment in appointments %}
+                <li> Patient: {{ appointment.patient.username }}<br>  <!-- Show patient's name -->
+                    Reason: {{ appointment.reason }}{{ appointment.appointment_date }} - {{ appointment.doctor.username }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No appointments found.</p>
+    {% endif %}
+
+    <!-- Add button for appointment creation -->
+    <a href="{% url 'create_appointment' %}" class="btn btn-primary">Create Appointment</a>
+</body>
+</html>
