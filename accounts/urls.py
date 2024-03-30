@@ -15,6 +15,8 @@ urlpatterns = [
     path('edit-test-report/<int:report_id>/', views.edit_test_report, name='edit_test_report'),
     path('view_reports/', views.view_reports, name='view_reports'),
     path('delete/<int:report_id>/', views.delete_report, name='delete_report'),
+    path('create-billing/', views.create_billing, name='create_billing'),
+    path('billing/<int:billing_id>/', views.billing_details, name='billing_details'),
 ]
 urlpatterns  += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

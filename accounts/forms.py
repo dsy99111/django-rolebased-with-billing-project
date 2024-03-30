@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import CustomUser,Appointment
 from django.forms.widgets import SelectDateWidget, TimeInput
-from .models import TestReport
+from .models import TestReport,Billing
 
 
 class RegistrationForm(UserCreationForm):
@@ -35,3 +35,8 @@ class TestReportEditForm(forms.ModelForm):
     class Meta:
         model = TestReport
         fields = ['report_file']
+
+class BillingForm(forms.ModelForm):
+    class Meta:
+        model = Billing
+        fields = ('patient', 'doctor', 'appointment', 'total_amount', 'payment_status', 'billing_date')

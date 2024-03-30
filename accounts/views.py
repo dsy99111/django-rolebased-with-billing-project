@@ -7,10 +7,14 @@ from .forms import AppointmentForm
 from django.db.models import Count
 from django.contrib.auth.decorators import login_required
 from .models import Appointment,CustomUser
-from .models import TestReport,Doctor_Blog,Video
+from .models import TestReport,Doctor_Blog,Video,Billing
 from .forms import TestReportForm, TestReportEditForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from .forms import BillingForm
+from django.http import HttpResponse
+from django.http import HttpResponseNotFound
+
 
 def accounts(request):
     alldoctor = Doctor_Blog.objects.all()[::-1]
@@ -38,11 +42,17 @@ def dashboard(request):
 
         return render(request, 'accounts/doctor.html', {'appointments': appointments, 'test_reports': test_reports})
 
+
     elif request.user.role == 'receptionist':
+
         appointments = Appointment.objects.all().order_by('-appointment_date')
+
         doctors = CustomUser.objects.filter(role='doctor')
 
+        billing = Billing.objects.first()  # Example query to get the first billing object
+
         selected_date = request.GET.get('date')
+
         selected_doctor = request.GET.get('doctor')
 
         if selected_date:
@@ -51,7 +61,14 @@ def dashboard(request):
         if selected_doctor:
             appointments = appointments.filter(doctor__username=selected_doctor)
 
-        return render(request, 'accounts/receptionist.html', {'appointments': appointments, 'doctors': doctors})
+        # Check if billing object exists before passing it to the template
+
+        context = {'appointments': appointments, 'doctors': doctors}
+
+        if billing:
+            context['billing'] = billing
+
+        return render(request, 'accounts/receptionist.html', context)
 
     else:
         # Default dashboard for patients
@@ -140,3 +157,41 @@ def delete_report(request, report_id):
         report.delete()
         return redirect('view_reports')
     return render(request, 'accounts/delete_report.html', {'report': report})
+
+@login_required
+def create_billing(request):
+    if request.method == 'POST':
+        # Process billing creation form data
+        # Make sure only receptionists can access this view
+        if request.user.role != 'receptionist':
+            return redirect('dashboard')  # Redirect unauthorized users
+
+        # Your billing creation logic here
+        # Example:
+        form = BillingForm(request.POST)
+        if form.is_valid():
+            billing = form.save(commit=False)
+            billing.save()
+            return redirect('billing_details', {'form': form})  # Redirect to billing details page or another page
+    else:
+        # Display billing creation form
+        # Make sure only receptionists can access this view
+        if request.user.role != 'receptionist':
+            return redirect('dashboard')  # Redirect unauthorized users
+
+        form = BillingForm()
+    return render(request, 'accounts/create_billing.html', {'form': form})
+
+@login_required
+def billing_details(request, billing_id):
+    # Make sure only receptionists can access this view
+    if request.user.role != 'receptionist':
+        return redirect('dashboard')  # Redirect unauthorized users
+
+    # Retrieve the specific billing record
+    try:
+        billing = Billing.objects.get(pk=billing_id)
+    except Billing.DoesNotExist:
+        return HttpResponseNotFound("Billing record not found.")
+
+    return render(request, 'accounts/billing_details.html', {'billing': billing})

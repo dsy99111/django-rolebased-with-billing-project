@@ -40,5 +40,28 @@
 
     <!-- Add button for appointment creation -->
     <a href="{% url 'create_appointment' %}" class="btn btn-primary">Create Appointment</a>
+ <!-- Add button for creating billing -->
+    <a href="{% url 'create_billing' %}" class="btn btn-primary">Create Billing</a>
+
+    <!-- Add button for viewing billing details -->
+    <!-- Debugging code -->
+{% if billings %}
+    <ul>
+        {% for billing in billings %}
+            <li>
+                Billing ID: {{ billing.billing_id }}<br>
+                Patient: {{ billing.patient.username }}<br>
+                Doctor: {{ billing.doctor.username }}<br>
+                Amount: {{ billing.total_amount }}<br>
+                Status: {{ billing.payment_status }}<br>
+                Date: {{ billing.billing_date }}<br>
+                <a href="{% url 'billing_details' billing_id=billing.billing_id %}" class="btn btn-primary">View Billing Details</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No billing records found.</p>
+{% endif %}
+
 </body>
 </html>

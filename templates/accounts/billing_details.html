@@ -1,0 +1,35 @@
+<!-- templates/accounts/billing_details.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Billing Details{% endblock %}
+
+{% block content %}
+<h1>Billing Details</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Billing ID</th>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Appointment</th>
+            <th>Total Amount</th>
+            <th>Payment Status</th>
+            <th>Billing Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for billing in billings %}
+        <tr>
+            <td>{{ billing.billing_id }}</td>
+            <td>{{ billing.patient }}</td>
+            <td>{{ billing.doctor }}</td>
+            <td>{{ billing.appointment }}</td>
+            <td>{{ billing.total_amount }}</td>
+            <td>{{ billing.payment_status }}</td>
+            <td>{{ billing.billing_date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

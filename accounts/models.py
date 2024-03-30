@@ -52,3 +52,14 @@ class Video(models.Model):
 
     def __str__(self):
         return self.title
+class Billing(models.Model):
+    billing_id = models.AutoField(primary_key=True)
+    patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(CustomUser, related_name='billed_doctor', on_delete=models.CASCADE)
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_status = models.CharField(max_length=10, default='Pending', choices=(('Pending', 'Pending'), ('Paid', 'Paid')))
+    billing_date = models.DateField()
+
+    def __str__(self):
+        return f'Billing - {self.patient.username} - {self.doctor.username} - {self.billing_date}'

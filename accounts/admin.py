@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser,Appointment,TestReport,Doctor_Blog,Video
+from .models import CustomUser,Appointment,TestReport,Doctor_Blog,Video,Billing
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     fieldsets = UserAdmin.fieldsets + (
@@ -35,3 +35,10 @@ class TestReportAdmin(admin.ModelAdmin):
     search_fields = ('patient__username',)
 
 
+class BillingAdmin(admin.ModelAdmin):
+    list_display = ('billing_id', 'patient', 'doctor', 'appointment', 'total_amount', 'payment_status', 'billing_date')
+    list_filter = ('payment_status', 'billing_date')
+    search_fields = ('patient__username', 'doctor__username')
+    date_hierarchy = 'billing_date'
+
+admin.site.register(Billing, BillingAdmin)
