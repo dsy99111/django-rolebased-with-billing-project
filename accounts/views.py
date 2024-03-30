@@ -49,7 +49,7 @@ def dashboard(request):
 
         doctors = CustomUser.objects.filter(role='doctor')
 
-        billing = Billing.objects.first()  # Example query to get the first billing object
+        billing = Billing.objects.all().order_by('-billing_date')  # Example query to get the first billing object
 
         selected_date = request.GET.get('date')
 
@@ -63,10 +63,7 @@ def dashboard(request):
 
         # Check if billing object exists before passing it to the template
 
-        context = {'appointments': appointments, 'doctors': doctors}
-
-        if billing:
-            context['billing'] = billing
+        context = {'appointments': appointments, 'doctors': doctors,'billing': billing}
 
         return render(request, 'accounts/receptionist.html', context)
 
@@ -184,14 +181,11 @@ def create_billing(request):
 
 @login_required
 def billing_details(request, billing_id):
-    # Make sure only receptionists can access this view
+    # Retrieve the billing object using the billing_id
+    billings = get_object_or_404(Billing, billing_id=billing_id)
+
+    # Check if the user is a receptionist before proceeding
     if request.user.role != 'receptionist':
         return redirect('dashboard')  # Redirect unauthorized users
 
-    # Retrieve the specific billing record
-    try:
-        billing = Billing.objects.get(pk=billing_id)
-    except Billing.DoesNotExist:
-        return HttpResponseNotFound("Billing record not found.")
-
-    return render(request, 'accounts/billing_details.html', {'billing': billing})
+    return render(request, 'accounts/billing_details.html', {'billings': billings})

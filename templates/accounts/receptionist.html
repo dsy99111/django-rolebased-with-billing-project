@@ -43,25 +43,35 @@
  <!-- Add button for creating billing -->
     <a href="{% url 'create_billing' %}" class="btn btn-primary">Create Billing</a>
 
-    <!-- Add button for viewing billing details -->
-    <!-- Debugging code -->
-{% if billings %}
-    <ul>
-        {% for billing in billings %}
-            <li>
-                Billing ID: {{ billing.billing_id }}<br>
-                Patient: {{ billing.patient.username }}<br>
-                Doctor: {{ billing.doctor.username }}<br>
-                Amount: {{ billing.total_amount }}<br>
-                Status: {{ billing.payment_status }}<br>
-                Date: {{ billing.billing_date }}<br>
-                <a href="{% url 'billing_details' billing_id=billing.billing_id %}" class="btn btn-primary">View Billing Details</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No billing records found.</p>
-{% endif %}
+   <!-- Display billing records -->
+    <h2>Billing Records</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Billing ID</th>
+                <th>Patient</th>
+                <th>Doctor</th>
 
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for billing in billing %}
+                <tr>
+                    <td>{{ billing.billing_id }}</td>
+                    <td>{{ billing.patient }}</td>
+                    <td>{{ billing.doctor }}</td>
+
+                    <td>
+                        <a href="{% url 'billing_details' billing_id=billing.billing_id %}" class="btn btn-primary">View Details</a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="7">No billing records found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
