@@ -37,6 +37,8 @@ class TestReportEditForm(forms.ModelForm):
         fields = ['report_file']
 
 class BillingForm(forms.ModelForm):
+    billing_date = forms.DateField(widget=SelectDateWidget())
+
     class Meta:
         model = Billing
         fields = ('patient', 'doctor', 'appointment', 'total_amount', 'payment_status', 'billing_date')

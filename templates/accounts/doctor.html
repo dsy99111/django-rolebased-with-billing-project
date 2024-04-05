@@ -8,6 +8,16 @@
 </head>
 <body>
     <h1>Welcome, Doctor!</h1>
+<!-- Add link to home page -->
+    <a href="{% url 'accounts' %}" class="btn btn-primary">Go to Home</a>
+    <!-- Appointment Filtering Form -->
+    <form method="GET" action="">
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date">
+
+        <button type="submit">Filter</button>
+    </form>
+
 
     <!-- Display filtered appointments -->
     <h2>Your Appointments:</h2>

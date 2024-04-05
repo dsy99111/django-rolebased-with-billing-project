@@ -163,13 +163,11 @@ def create_billing(request):
         if request.user.role != 'receptionist':
             return redirect('dashboard')  # Redirect unauthorized users
 
-        # Your billing creation logic here
-        # Example:
         form = BillingForm(request.POST)
         if form.is_valid():
             billing = form.save(commit=False)
             billing.save()
-            return redirect('billing_details', {'form': form})  # Redirect to billing details page or another page
+            return redirect('billing_details', billing_id=billing.pk)  # Redirect to billing details page for the newly created billing record
     else:
         # Display billing creation form
         # Make sure only receptionists can access this view
@@ -178,7 +176,6 @@ def create_billing(request):
 
         form = BillingForm()
     return render(request, 'accounts/create_billing.html', {'form': form})
-
 @login_required
 def billing_details(request, billing_id):
     # Retrieve the billing object using the billing_id

@@ -8,7 +8,8 @@
 </head>
 <body>
     <h1>Welcome, Receptionist!</h1>
-
+<!-- Add link to home page -->
+    <a href="{% url 'accounts' %}" class="btn btn-primary">Go to Home</a>
     <!-- Appointment Filtering Form -->
     <form method="GET" action="">
         <label for="date">Select Date:</label>
@@ -67,9 +68,7 @@
                     </td>
                 </tr>
 
-                <tr>
-                    <td colspan="7">No billing records found.</td>
-                </tr>
+
             {% endfor %}
         </tbody>
     </table>
