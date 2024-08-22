@@ -12,19 +12,18 @@ from .forms import TestReportForm, TestReportEditForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import BillingForm
+
+from reportlab.lib.units import inch
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 from django.http import HttpResponse
-from django.http import HttpResponseNotFound
+from django.shortcuts import get_object_or_404
 from io import BytesIO
-from django.http import HttpResponse
+import os
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from django.template.loader import get_template
-from django.template import Context
-from django.conf import settings
-from reportlab.lib.units import inch
-import os
-
-
 
 
 def accounts(request):
@@ -207,18 +206,11 @@ def generate_pdf(billing):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Draw the hospital letterhead or logo here
-    buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
-
     # Get the path to the image file
     image_path = os.path.join(settings.MEDIA_ROOT, 'bill-logo-image', 'lifetree.png')
-    p.drawString(100, height - 50, "Life Tree Clinic")
-    p.drawString(100, height - 70, "Gurugram")
+
     # Draw the hospital letterhead or logo image
-    # Draw the hospital letterhead or logo image
-    p.drawImage(image_path, 100, height - 150, width=3 * inch, height=1 * inch)
+    p.drawImage(image_path, 100, height - 150, width=3*inch, height=1*inch)
 
     # Add billing details
     p.drawString(100, height - 180, f"Billing ID: {billing.billing_id}")
@@ -238,6 +230,22 @@ def generate_pdf(billing):
 def billing_pdf_view(request, billing_id):
     billing = get_object_or_404(Billing, billing_id=billing_id)
     pdf_buffer = generate_pdf(billing)
-    response = HttpResponse(pdf_buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=billing_{billing_id}.pdf'
-    return response
+
+    # Email setup
+    subject = f'Billing Details for Billing ID: {billing.billing_id}'
+    recipient = billing.patient.email  # Assuming Billing has a ForeignKey to the Patient model
+    from_email = settings.DEFAULT_FROM_EMAIL
+
+    # Render an optional email template
+    html_message = render_to_string('email/billing_email.html', {'billing': billing})
+    plain_message = strip_tags(html_message)
+
+    # Create email
+    email = EmailMessage(subject, plain_message, from_email, [recipient])
+    email.attach(f'billing_{billing.billing_id}.pdf', pdf_buffer.getvalue(), 'application/pdf')
+
+    # Send email
+    email.send()
+
+    # Provide a response (optional: can redirect to a success page)
+    return HttpResponse(f'Billing details have been emailed to {recipient}.')

@@ -1,0 +1,14 @@
+<!-- billing_email.html -->
+<p>Dear {{ billing.patient.username }},</p>
+
+<p>Please find attached the billing details for your recent appointment:</p>
+
+<ul>
+    <li>Billing ID: {{ billing.billing_id }}</li>
+    <li>Total Amount: {{ billing.total_amount }}</li>
+    <li>Payment Status: {{ billing.payment_status }}</li>
+</ul>
+
+<p>Thank you for choosing our services.</p>
+
+<p>Best Regards,<br>Hospital Name</p>
