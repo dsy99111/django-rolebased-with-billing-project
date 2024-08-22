@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 
 from django.urls import path
 from . import views
-
+from .views import billing_pdf_view
 urlpatterns = [
     path('',views.accounts,name="accounts"),
     path('register/', views.register, name='register'),
@@ -17,6 +17,8 @@ urlpatterns = [
     path('delete/<int:report_id>/', views.delete_report, name='delete_report'),
     path('create-billing/', views.create_billing, name='create_billing'),
     path('billing/<int:billing_id>/', views.billing_details, name='billing_details'),
+    path('billing/pdf/<int:billing_id>/', billing_pdf_view, name='billing_pdf'),
+
 ]
 urlpatterns  += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

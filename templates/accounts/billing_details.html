@@ -27,6 +27,9 @@
         </tr>
 <!-- Add link to receptionist panel -->
     <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Receptionist Panel</a>
+    <a href="{% url 'billing_pdf' billing_id=billings.billing_id %}" class="btn btn-primary">Download PDF</a>
+
+
     </tbody>
 </table>
 

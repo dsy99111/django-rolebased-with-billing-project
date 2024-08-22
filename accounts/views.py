@@ -14,6 +14,17 @@ from django.contrib import messages
 from .forms import BillingForm
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
+from io import BytesIO
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.template.loader import get_template
+from django.template import Context
+from django.conf import settings
+from reportlab.lib.units import inch
+import os
+
+
 
 
 def accounts(request):
@@ -186,3 +197,47 @@ def billing_details(request, billing_id):
         return redirect('dashboard')  # Redirect unauthorized users
 
     return render(request, 'accounts/billing_details.html', {'billings': billings})
+
+
+
+
+
+def generate_pdf(billing):
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # Draw the hospital letterhead or logo here
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # Get the path to the image file
+    image_path = os.path.join(settings.MEDIA_ROOT, 'bill-logo-image', 'lifetree.png')
+    p.drawString(100, height - 50, "Life Tree Clinic")
+    p.drawString(100, height - 70, "Gurugram")
+    # Draw the hospital letterhead or logo image
+    # Draw the hospital letterhead or logo image
+    p.drawImage(image_path, 100, height - 150, width=3 * inch, height=1 * inch)
+
+    # Add billing details
+    p.drawString(100, height - 180, f"Billing ID: {billing.billing_id}")
+    p.drawString(100, height - 200, f"Patient: {billing.patient.username}")
+    p.drawString(100, height - 220, f"Doctor: {billing.doctor.username}")
+    p.drawString(100, height - 240, f"Appointment: {billing.appointment}")
+    p.drawString(100, height - 260, f"Total Amount: {billing.total_amount}")
+    p.drawString(100, height - 280, f"Payment Status: {billing.payment_status}")
+    p.drawString(100, height - 300, f"Billing Date: {billing.billing_date}")
+
+    p.showPage()
+    p.save()
+    buffer.seek(0)
+    return buffer
+
+
+def billing_pdf_view(request, billing_id):
+    billing = get_object_or_404(Billing, billing_id=billing_id)
+    pdf_buffer = generate_pdf(billing)
+    response = HttpResponse(pdf_buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=billing_{billing_id}.pdf'
+    return response

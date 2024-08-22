@@ -16,6 +16,7 @@ class LoginForm(AuthenticationForm):
         fields = ('username', 'password')
 
 class AppointmentForm(forms.ModelForm):
+    doctor = forms.ModelChoiceField(queryset=CustomUser.objects.filter(role='doctor'))
     # Add patient field with queryset for selecting patient name
     patient = forms.ModelChoiceField(queryset=CustomUser.objects.filter(role='patient'))
 
