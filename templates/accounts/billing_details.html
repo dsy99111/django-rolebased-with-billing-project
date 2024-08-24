@@ -26,10 +26,14 @@
             <td>{{ billings.billing_date }}</td>
         </tr>
 <!-- Add link to receptionist panel -->
-    <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Receptionist Panel</a>
-    <a href="{% url 'billing_pdf' billing_id=billings.billing_id %}" class="btn btn-primary">Download PDF</a>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Receptionist Panel</a><br>
+    <a href="{% url 'billing_pdf' billing_id=billings.billing_id %}" class="btn btn-primary">Send patient bill as PDF </a>
 
 
     </tbody>
 </table>
 
+<form method="get" action="{% url 'billing_pdf' billing_id=billings.billing_id %}">
+    <button type="submit" name="preview" value="true">Preview PDF</button>
+    <button type="submit">Send Email</button>
+</form>

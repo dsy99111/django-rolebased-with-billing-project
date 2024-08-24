@@ -8,6 +8,10 @@ class CustomUser(AbstractUser):
         ('receptionist', 'Receptionist'),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='patient')
+    mobile_number = models.CharField(max_length=15, unique=True, null=True, blank=True)  # Add mobile_number field
+    email = models.EmailField(unique=True)  # Email field
+    is_email_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)  # Ensure default is False
 
 # Create your models here.
 

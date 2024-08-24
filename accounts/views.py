@@ -24,8 +24,30 @@ from io import BytesIO
 import os
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+# chatbot/views.py
 
+import openai
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
+# Set your OpenAI API key here
+openai.api_key = 'your-openai-api-key'
+from django.contrib.auth import login
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.urls import reverse
+from .tokens import email_verification_token  # Import the custom token generator
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.shortcuts import render, redirect
+from django.contrib.sites.shortcuts import get_current_site
+
+User = get_user_model()
 def accounts(request):
     alldoctor = Doctor_Blog.objects.all()[::-1]
     video = Video.objects.all()
@@ -85,16 +107,32 @@ def dashboard(request):
 
         return render(request, 'accounts/patient.html', {'appointments':appointments, 'test_reports': test_reports})
         #return render(request, 'accounts/patient.html', {'appointments': appointments})
+
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('login')
+            user = form.save(commit=False)
+            user.is_active = False  # Deactivate account until email is verified
+            user.save()
+
+            # Send confirmation email
+            current_site = get_current_site(request)
+            mail_subject = 'Activate your account.'
+            message = render_to_string('accounts/email_verification.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': email_verification_token.make_token(user),
+            })
+            send_mail(mail_subject, message, 'webmaster@mydomain.com', [user.email])
+
+            return redirect('email_verification_sent')  # Redirect to a page telling the user to check their email
     else:
         form = RegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
+
 
 def user_login(request):
     if request.method == 'POST':
@@ -210,7 +248,7 @@ def generate_pdf(billing):
     image_path = os.path.join(settings.MEDIA_ROOT, 'bill-logo-image', 'lifetree.png')
 
     # Draw the hospital letterhead or logo image
-    p.drawImage(image_path, 100, height - 150, width=3*inch, height=1*inch)
+    p.drawImage(image_path, 100, height - 150, width=200, height=100)
 
     # Add billing details
     p.drawString(100, height - 180, f"Billing ID: {billing.billing_id}")
@@ -226,26 +264,44 @@ def generate_pdf(billing):
     buffer.seek(0)
     return buffer
 
-
 def billing_pdf_view(request, billing_id):
     billing = get_object_or_404(Billing, billing_id=billing_id)
     pdf_buffer = generate_pdf(billing)
 
-    # Email setup
-    subject = f'Billing Details for Billing ID: {billing.billing_id}'
-    recipient = billing.patient.email  # Assuming Billing has a ForeignKey to the Patient model
-    from_email = settings.DEFAULT_FROM_EMAIL
+    # Check if the request is for preview or email
+    if 'preview' in request.GET:
+        return HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+    else:
+        # Email setup
+        subject = f'Billing Details for Billing ID: {billing.billing_id}'
+        recipient = billing.patient.email  # Assuming Billing has a ForeignKey to the Patient model
+        from_email = settings.DEFAULT_FROM_EMAIL
 
-    # Render an optional email template
-    html_message = render_to_string('email/billing_email.html', {'billing': billing})
-    plain_message = strip_tags(html_message)
+        # Render an optional email template
+        html_message = render_to_string('email/billing_email.html', {'billing': billing})
+        plain_message = strip_tags(html_message)
 
-    # Create email
-    email = EmailMessage(subject, plain_message, from_email, [recipient])
-    email.attach(f'billing_{billing.billing_id}.pdf', pdf_buffer.getvalue(), 'application/pdf')
+        # Create email
+        email = EmailMessage(subject, plain_message, from_email, [recipient])
+        email.attach(f'billing_{billing.billing_id}.pdf', pdf_buffer.getvalue(), 'application/pdf')
 
-    # Send email
-    email.send()
+        # Send email
+        email.send()
 
-    # Provide a response (optional: can redirect to a success page)
-    return HttpResponse(f'Billing details have been emailed to {recipient}.')
+        # Provide a response
+        return HttpResponse(f'Billing details have been emailed to {recipient}.')
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and email_verification_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)  # Automatically log in the user
+        return redirect('accounts')  # Redirect to the accounts view
+    else:
+        return render(request, 'accounts/activation_invalid.html')

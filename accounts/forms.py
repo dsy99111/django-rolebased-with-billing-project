@@ -8,7 +8,7 @@ from .models import TestReport,Billing
 class RegistrationForm(UserCreationForm):
     class Meta:
         model = CustomUser  # Use CustomUser model
-        fields = ('username', 'password1', 'password2', 'role')
+        fields = ('username', 'password1', 'password2', 'email', 'mobile_number',  'role')
 
 class LoginForm(AuthenticationForm):
     class Meta:
